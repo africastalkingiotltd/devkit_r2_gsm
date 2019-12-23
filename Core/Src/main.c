@@ -23,6 +23,11 @@
 #include "usart.h"
 #include "gpio.h"
 
+#include <stdlib.h>
+#include <string.h>
+#include <stdio.h>
+#include <assert.h>
+
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
@@ -143,7 +148,17 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+int serialPrint(const char *string_format, ...)
+{
+  if (DEBUG)
+  {
+    return printf(string_format);
+  }
+  else
+  {
+    return 0;
+  }
+}
 /* USER CODE END 4 */
 
 /**

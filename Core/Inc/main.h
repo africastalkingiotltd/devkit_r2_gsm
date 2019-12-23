@@ -65,6 +65,7 @@ extern "C" {
 void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
+int serialPrint(const char *string_format, ...);
 
 /* USER CODE END EFP */
 
@@ -72,7 +73,20 @@ void Error_Handler(void);
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
+#define DEBUG 0
+extern uint32_t sim_disconnected;
+extern uint8_t command_failed_count;
 
+typedef enum {
+  Off        = 0,
+  On         = 1,
+  Registered = 2
+}GSMModuleState;
+extern GSMModuleState gsmModuleState;
+
+extern uint8_t apn_netw[30]; // say iot.safaricom.com or safaricom
+extern uint8_t apn_user[10]; // something like saf or empty
+extern uint8_t apn_pass[10]; // something like data or empty
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

@@ -168,12 +168,12 @@ uint8_t checkSIMNetworkState()
 {
     if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"),"+CREG: 0,1", 20)))
     {
-        serialPrint("Network state: Registred to home network\r\n");
+        serialPrint("Network state: Registered to home network\r\n");
         return 1;
     }
     if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"), "+CREG: 0,5", 20)))
     {
-        serialPrint("Network state: Registred but roaming\r\n");
+        serialPrint("Network state: Registered but roaming\r\n");
         return 1;
     }
     return 0;

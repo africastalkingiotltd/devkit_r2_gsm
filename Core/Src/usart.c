@@ -19,9 +19,34 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "usart.h"
+#include "gpio.h"
 
 /* USER CODE BEGIN 0 */
+#define _BV(bit) (1 << (bit))
 
+
+#define UART1_TXB	128
+#define UART1_RXB	512
+
+static volatile struct UART1Fifo {
+	uint16_t tri, twi, tct;
+	uint16_t rri, rwi, rct;
+	uint8_t tbuf[UART1_TXB];
+	uint8_t rbuf[UART1_RXB];
+}UART1Fifo;
+
+
+#define UART2_TXB	1024
+#define UART2_RXB	512
+
+static volatile struct UART2Fifo {
+	uint16_t tri, twi, tct;
+	uint16_t rri, rwi, rct;
+	uint8_t tbuf[UART2_TXB];
+	uint8_t rbuf[UART2_RXB];
+}UART2Fifo;
+
+volatile static uint8_t controllerSegmentIndex;
 /* USER CODE END 0 */
 
 /* USART1 init function */
@@ -110,6 +135,222 @@ void MX_USART2_UART_Init(void)
 }
 
 /* USER CODE BEGIN 1 */
+
+void UART1FIFOInit(void)
+{
+
+	UART1Fifo.tri = 0;
+	UART1Fifo.twi = 0;
+	UART1Fifo.tct = 0;
+
+	UART1Fifo.rri = 0;
+	UART1Fifo.rwi = 0;
+	UART1Fifo.rct = 0;
+
+	USART1->CR1  |= _BV(5);
+	LL_USART_Enable(USART1);
+}
+
+int UART1Probe(void)
+{
+	return UART1Fifo.rct;
+}
+
+uint8_t UART1GetChar(void)
+{
+	uint8_t d;
+	int i;
+
+	while(!UART1Fifo.rct) ;
+
+	i = UART1Fifo.rri;
+	d = UART1Fifo.rbuf[i];
+	UART1Fifo.rri = ++i % UART1_RXB;
+	__disable_irq();
+	UART1Fifo.rct--;
+	__enable_irq();
+
+	return d;
+}
+
+void UART1PutChar(uint8_t d)
+{
+
+	int i;
+	while(UART1Fifo.tct >= UART1_TXB) ;
+
+	i = UART1Fifo.twi;
+	UART1Fifo.tbuf[i] = d;
+	UART1Fifo.twi     = ++i % UART1_TXB;
+	__disable_irq();
+	UART1Fifo.tct++;
+	USART1->CR1 |= _BV(7);
+	__enable_irq();
+
+}
+
+void debugUART1IRQHandler(void)
+{
+	uint32_t sr = USART1->SR;
+	uint8_t  d;
+	int i;
+
+	if(sr & _BV(5))
+	{
+		d = USART1->DR;
+		i = UART1Fifo.rct;
+		if(i < UART1_RXB)
+		{
+			UART1Fifo.rct = ++i;
+			i = UART1Fifo.rwi;
+			UART1Fifo.rbuf[i] = d;
+			UART1Fifo.rwi = ++i % UART1_RXB;
+		}
+	}
+	if(sr & _BV(7))
+	{
+		i = UART1Fifo.tct;
+		if(i--)
+		{
+			UART1Fifo.tct = (uint16_t)i;
+			i = UART1Fifo.tri;
+			USART1->DR =  UART1Fifo.tbuf[i];
+			UART1Fifo.tri = ++i % UART1_TXB;
+		} else {
+			USART1->CR1 &= ~_BV(7);
+		}
+	}
+}
+
+uint32_t UART1Send(uint8_t *data, int data_size)
+{
+	int i;
+	for(i=0; i < data_size; i++)
+	{
+		if(*data != '\0') {
+		UART1_putc(*data++);
+		}
+	}
+	return i;
+}
+
+
+// USART 2 GSM
+uint8_t UART2GetChar(void)
+{
+	uint8_t d;
+	int i;
+
+	while(!UART2Fifo.rct)
+	{
+		;
+	}
+	i = UART2Fifo.rri;
+	d = UART2Fifo.rbuf[i];
+	UART2Fifo.rri = ++i % UART2_RXB;
+	__disable_irq();
+	UART2Fifo.rct--;
+	__enable_irq();
+
+	return d;
+}
+
+int UART2Probe(void)
+{
+	return UART2Fifo.rct;
+}
+
+void UART2FIFOInit(void)
+{
+	UART2Fifo.tri = 0;
+	UART2Fifo.twi = 0;
+	UART2Fifo.tct = 0;
+
+	UART2Fifo.rri = 0;
+	UART2Fifo.rwi = 0;
+	UART2Fifo.rct = 0;
+
+	USART2->CR1  |= _BV(5);
+	LL_USART_Enable(USART2);
+}
+
+void UART2PutChar(uint8_t data)
+{
+	int i;
+
+	if(UART2Fifo.tct >= UART2_TXB)
+	{
+		UART2Fifo.tri = 0;
+		UART2Fifo.twi = 0;
+		UART2Fifo.tct = 0;
+
+		UART2Fifo.rri = 0;
+		UART2Fifo.rwi = 0;
+		UART2Fifo.rct = 0;
+		return;
+	}
+	i = UART2Fifo.twi;
+	UART2Fifo.tbuf[i] = d;
+	UART2Fifo.twi = ++i % UART2_TXB;
+	__disable_irq();
+	UART2Fifo.tct++;
+	USART2->CR1 |= _BV(7);
+	__enable_irq();
+}
+
+uint32_t UART2Send(uint8_t *data, int data_size)
+{
+	int i;
+	for(i=0; i<data_size; i++)
+	{
+		UART2_putc(*data++);
+	}
+	return i;
+}
+
+void UART2IRQHandler(void)
+{
+	uint32_t usart_sr = USART2->SR;
+	uint32_t status_register;
+	uint8_t d;
+	int i;
+
+    if(usart_sr &_BV(5))
+    {
+    	d = USART2->DR;
+    	USART1->DR = d;
+    	i = UART2Fifo.rct;
+    	if(i < UART2_RXB)
+    	{
+    		UART2Fifo.rct = ++i;
+    		i = UART2Fifo.rwi;
+    		UART2Fifo.rbuf[i] = d;
+    		UART2Fifo.rwi = ++i % UART2_RXB;
+    	}
+    }
+
+    if(usart_sr  & _BV(7))
+    {
+    	i = UART2Fifo.tct;
+    	if(i--)
+    	{
+    		UART2Fifo.tct = (uint16_t)i;
+    		i = UART2Fifo.tri;
+    		USART2->DR = UART2Fifo.tbuf[i];
+    		USART1->DR = UART2Fifo.tbuf[i];
+    		UART2Fifo.tri = ++i % UART2_TXB;
+    	} else {
+    		USART2->CR1 &= ~_BV(7);
+    	}
+    }
+
+    status_register = USART2->SR;
+	if(status_register & _BV(3))
+	{
+		d = USART2->DR;
+	}
+}
+
 
 /* USER CODE END 1 */
 

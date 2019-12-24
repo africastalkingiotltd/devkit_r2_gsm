@@ -73,7 +73,7 @@ int serialPrint(const char *string_format, ...);
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
-#define DEBUG 0
+#define DEVEL 0
 extern uint32_t sim_disconnected;
 extern uint8_t command_failed_count;
 

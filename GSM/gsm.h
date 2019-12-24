@@ -8,6 +8,7 @@
 #ifndef GSM_H_
 #define GSM_H_
 
+#include "gpio.h"
 #include <stdint.h>
 
 typedef enum { 

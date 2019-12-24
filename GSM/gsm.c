@@ -23,9 +23,9 @@ volatile uint16_t read_data_buffer  = 0;
 volatile uint16_t state             = Idle;
 volatile uint32_t capture_mask      = 0;
 
-extern tcpObject tcpConnectionObject;
-extern tcpObject secondaryConnectionObject;
-extern TCP_IP_STATE tcpIpConnectionState;
+tcpObject tcpConnectionObject;
+tcpObject secondaryConnectionObject;
+TCP_IP_STATE tcpIpConnectionState;
 
 uint8_t phoneNumber[14];
 uint8_t smsMessage[170];
@@ -181,12 +181,12 @@ uint8_t checkSIMNetworkState()
 
 uint8_t sendATCommand(void *command, int data_size, char *response, int timeout)
 {
-    char control_character = "\r";
+    char control_character = '\r';
     char *control_character_ptr = &control_character;
     read_data_buffer = 0;
     memset(&gsm_data_buffer[0], 0, MAX_READ_DATA);
     UART2Send((uint8_t *)command, (data_size - 1));
-    UART2Send((uint8_t *)control_character, 1);
+    UART2Send((uint8_t *)control_character_ptr, 1);
     state = Idle;
     gsmTick = 0;
     while (gsmTick < timeout)
@@ -313,7 +313,7 @@ uint8_t setupTCP()
 uint8_t writeToTCPSocket()
 {
     serialPrint("Sending data \r\n");
-    if ("AT+CIPSEND=0,7",sizeof("AT+CIPSEND=0,7"),  ">", 300)
+    if (sendATCommand("AT+CIPSEND=0,7",sizeof("AT+CIPSEND=0,7"),  ">", 300))
     {
         serialPrint("..\r\n");
         UART2Send((uint8_t *)"HELLO\r\n",7);

@@ -228,7 +228,7 @@ uint32_t UART1Send(uint8_t *data, int data_size)
 	for(i=0; i < data_size; i++)
 	{
 		if(*data != '\0') {
-		UART1_putc(*data++);
+		UART1PutChar(*data++);
 		}
 	}
 	return i;
@@ -290,7 +290,7 @@ void UART2PutChar(uint8_t data)
 		return;
 	}
 	i = UART2Fifo.twi;
-	UART2Fifo.tbuf[i] = d;
+	UART2Fifo.tbuf[i] = data;
 	UART2Fifo.twi = ++i % UART2_TXB;
 	__disable_irq();
 	UART2Fifo.tct++;
@@ -303,7 +303,7 @@ uint32_t UART2Send(uint8_t *data, int data_size)
 	int i;
 	for(i=0; i<data_size; i++)
 	{
-		UART2_putc(*data++);
+		UART2PutChar(*data++);
 	}
 	return i;
 }

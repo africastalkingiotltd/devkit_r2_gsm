@@ -46,7 +46,7 @@ extern TCP_IP_STATE tcpIpConnectionState;
  * @brief Initialize SIM Module
  * 
  * ATE0 Check command echo
- * AT+CGMF=1 Set SMS Format to text
+ * AT+CMGF=1 Set SMS Format to text
  * AT&W Save settings
  * AT+GMR Check module software revision
  * 
@@ -102,7 +102,7 @@ uint8_t checkSIMNetworkState();
  * AT+CIPMUX=1 Enable multi-IP connection 
  * AT+CIPSHUT See -> https://www.tutorialspoint.com/gprs/gprs_pdp_context.htm
  * AT+CSTT Configures APN 
- * AT+CIIR enable wireless connectivity
+ * AT+CIICR enable wireless connectivity
  * AT+CIFSR obtain local IP 
  * 
  * @return uint8_t 

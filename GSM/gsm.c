@@ -102,29 +102,29 @@ uint8_t initializeSIMModule()
         counter++;
         if (counter > 20)
         {
-            serialPrint("Unable to initialize GSM \r\n");
-            serialPrint("Restart device \r\n");
+            serialPrint("\nUnable to initialize GSM \r\n");
+            serialPrint("\nRestart device \r\n");
             // TODO: Document this behavior
             //startSIMModule(GPIOC, GPIO_PIN, 3000);
             return 0;
         }   
     }
-    serialPrint("SIM Initialized successfully\r\n");
+    serialPrint("\nSIM Initialized successfully\r\n");
     if (sendATCommand("ATE0", sizeof("ATE0"), "OK\r\n", 20))
     {
-        serialPrint("No Echo \r\n");
+        serialPrint("\nNo Echo \r\n");
     }
-    if (sendATCommand("AT+CGMF=1", sizeof("AT+CGMF=1"), "OK\r\n", 20))
+    if (sendATCommand("AT+CMGF=1", sizeof("AT+CMGF=1"), "OK\r\n", 20))
     {
-        serialPrint("Text mode saved as message format \r\n");
+        serialPrint("\nText mode message format\r\n");
     }
     if (sendATCommand("AT&W", sizeof("AT&W"), "OK\r\n", 20))
     {
-        serialPrint("Settings saved \r\n");
+        serialPrint("\nSettings saved\r\n");
     }
     if (sendATCommand("AT+GMR", sizeof("AT+GMR"), "OK\r\n", 20))
     {
-        serialPrint("TA Software Revision identified successfully\r\n");
+        serialPrint("\nTA identified\r\n");
     }
     state = Idle;
     return 1;
@@ -139,7 +139,7 @@ uint8_t gsmKeepAlive()
         {
             sim_disconnected++;
             int net_state = checkSIMNetworkState();
-            serialPrint("Network state: %i \r\n", net_state);
+            serialPrint("\nNetwork state: %i \r\n", net_state);
         }
         else
         {
@@ -155,25 +155,25 @@ uint8_t gsmKeepAlive()
         command_failed_count++;
         if (command_failed_count > 10)
         {
-            serialPrint("Can not communicate with module \r\n");
+            serialPrint("\nCan not communicate with module \r\n");
             gsmModuleState = Off;
             command_failed_count = 0;
             return 0;
         }
     }
-    return 0;
+    return 1;
 }
 
 uint8_t checkSIMNetworkState()
 {
     if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"),"+CREG: 0,1", 20)))
     {
-        serialPrint("Network state: Registered to home network\r\n");
+        serialPrint("\nRegistered to home network\r\n");
         return 1;
     }
     if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"), "+CREG: 0,5", 20)))
     {
-        serialPrint("Network state: Registered but roaming\r\n");
+        serialPrint("\nRegistered but roaming\r\n");
         return 1;
     }
     return 0;
@@ -252,7 +252,7 @@ void resetSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration
     HAL_GPIO_WritePin(pin_peripheral, gsm_pin, GPIO_PIN_RESET);
     HAL_Delay(duration);
     HAL_GPIO_WritePin(pin_peripheral,gsm_pin,GPIO_PIN_SET);
-    serialPrint("GSM Module Restarted \r\n");
+    serialPrint("\nGSM Module Restarted \r\n");
 }
 
 void startSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration)
@@ -261,7 +261,7 @@ void startSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration
     HAL_GPIO_WritePin(pin_peripheral, gsm_pin, GPIO_PIN_SET);
     HAL_Delay(duration);
     HAL_GPIO_WritePin(pin_peripheral,gsm_pin,GPIO_PIN_RESET);
-    serialPrint("GSM Module Started \r\n");
+    serialPrint("\nGSM Module Started \r\n");
 }
 
 uint8_t setupTCP()
@@ -272,38 +272,38 @@ uint8_t setupTCP()
     {
         if (sendATCommand("AT+CIPRXGET=1", sizeof("AT+CIPRXGET=1"), "OK\r\n", 20))
         {
-            serialPrint("Manually gettting data from network enabled \r\n");
+            serialPrint("\nManual data fetch enabled\r\n");
         }
         if(sendATCommand("AT+CGATT=1", sizeof("AT+CGATT=1"), "OK\r\n", 3000))
         {
-            serialPrint("Successfully attached to network \r\n");
+            serialPrint("\nAttached to network\r\n");
             if (sendATCommand("AT+CIPMUX=1", sizeof("AT+CIPMUX=1"), "OK\r\n", 300))
             {
-                serialPrint("Multi-IP Connection started \r\n");
+                serialPrint("\nMulti-IP Connection started \r\n");
             }
             if (sendATCommand("AT+CIPSHUT", sizeof("AT+CIPSHUT"), "SHUT OK", 300))
             {
-                serialPrint("PDP Context decativated \r\n");
+                serialPrint("\nPDP Context decativated\r\n");
                 // See -> https://www.tutorialspoint.com/gprs/gprs_pdp_context.htm
             }
             length = snprintf(data_bucket, 64, "AT+CSTT=\"%s\",\"%s\",\"%s\"\r", apn_netw, apn_user, apn_pass);
             if (sendATCommand(data_bucket, length, "OK\r\n", 300))
             {
-                serialPrint("APN config set successfully \r\n");
+                serialPrint("\nAPN OK\r\n");
             }
-            if (sendATCommand("AT+CIIR", sizeof("AT+CIIR"), "OK\r\n", 10000))
+            if (sendATCommand("AT+CIICR", sizeof("AT+CIICR"), "OK\r\n", 7000))
             {
-                serialPrint("Wireless connection brought up successfully within 10 seconds \r\n");
+                serialPrint("\nWireless connection successful\r\n");
                 if (sendATCommand("AT+CIFSR", sizeof("AT+CIFSR"), "ERROR", 3000))
                 {
-                    serialPrint("Unable to get local IP \r\n");
+                    serialPrint("\nUnable to get local IP \r\n");
                     return 0;
                 } else {
-                    serialPrint("Local IP issued \r\n");
+                    serialPrint("\nLocal IP issued\r\n");
                     return 1;
                 }
             } else {
-                serialPrint("Unable establish wireless connection \r\n");
+                serialPrint("\nWireless connection failed\r\n");
             }
         }
     }
@@ -312,17 +312,17 @@ uint8_t setupTCP()
 
 uint8_t writeToTCPSocket()
 {
-    serialPrint("Sending data \r\n");
+    serialPrint("\nSending data \r\n");
     if (sendATCommand("AT+CIPSEND=0,7",sizeof("AT+CIPSEND=0,7"),  ">", 300))
     {
-        serialPrint("..\r\n");
+        serialPrint("\n..\r\n");
         UART2Send((uint8_t *)"HELLO\r\n",7);
         if (getATCommandReply("SEND", 5000))
         {
-            serialPrint("Sent data\r\n");
+            serialPrint("\nSent data\r\n");
             return 1;
         }else{
-            serialPrint("Unable to send data \r\n");
+            serialPrint("\nUnable to send data\r\n");
         }
         
     }
@@ -362,28 +362,22 @@ uint8_t getTCPStatus(int timeout)
             if (strstr((char*)accum, "IP INITIAL"))
             {
                 tcpIpConnectionState = IP_INITIAL;
-            }
-            if (strstr((char*)accum, "IP START"))
+            }else if (strstr((char*)accum, "IP START"))
             {
                 tcpIpConnectionState = IP_START;
-            }
-            if (strstr((char*)accum, "IP CONFIG"))
+            }else if (strstr((char*)accum, "IP CONFIG"))
             {
                 tcpIpConnectionState = IP_CONFIG;
-            }
-            if (strstr((char*)accum, "IP GPRSACT"))
+            }else if (strstr((char*)accum, "IP GPRSACT"))
             {
                 tcpIpConnectionState = IP_GPRSACT;
-            }
-            if (strstr((char*)accum, "IP STATUS"))
+            }else if (strstr((char*)accum, "IP STATUS"))
             {
                 tcpIpConnectionState = IP_STATUS;
-            }
-            if (strstr((char*)accum, "IP PROCESSING"))
+            }else if (strstr((char*)accum, "IP PROCESSING"))
             {
                 tcpIpConnectionState = IP_PROCESSING;
-            }
-            if (strstr((char*)accum, "PDP DEACT"))
+            }else if (strstr((char*)accum, "PDP DEACT"))
             {
                 tcpIpConnectionState = PDP_DEACT;
             } 
@@ -394,24 +388,19 @@ uint8_t getTCPStatus(int timeout)
             if (strstr((char*)accum, "INITIAL"))
             {
                 tcpConnectionObject.state = INITIAL;
-            }
-            if (strstr((char*)accum, "CONNECTING"))
+            }else if (strstr((char*)accum, "CONNECTING"))
             {
                 tcpConnectionObject.state = CONNECTING;
-            }
-            if (strstr((char*)accum, "CONNECTED"))
+            }else if (strstr((char*)accum, "CONNECTED"))
             {
                 tcpConnectionObject.state = CONNECTED;
-            }
-            if (strstr((char*)accum, "REMOTE CLOSING"))
+            }else if (strstr((char*)accum, "REMOTE CLOSING"))
             {
                 tcpConnectionObject.state = REMOTE_CLOSING;
-            }
-            if (strstr((char*)accum, "CLOSING"))
+            }else if (strstr((char*)accum, "CLOSING"))
             {
                 tcpConnectionObject.state = CLOSING;
-            }  
-            if (strstr((char*)accum, "CLOSED"))
+            }else if (strstr((char*)accum, "CLOSED"))
             {
                 tcpConnectionObject.state = CLOSED;
             }  

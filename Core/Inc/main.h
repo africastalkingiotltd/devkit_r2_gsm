@@ -73,7 +73,7 @@ int serialPrint(const char *string_format, ...);
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
 /* USER CODE BEGIN Private defines */
-#define DEVEL 0
+#define DEVEL 1
 extern uint32_t sim_disconnected;
 extern uint8_t command_failed_count;
 
@@ -87,6 +87,8 @@ extern GSMModuleState gsmModuleState;
 extern uint8_t apn_netw[30]; // say iot.safaricom.com or safaricom
 extern uint8_t apn_user[10]; // something like saf or empty
 extern uint8_t apn_pass[10]; // something like data or empty
+
+int __io_putchar(uint8_t ch);
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

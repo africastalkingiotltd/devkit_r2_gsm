@@ -51,9 +51,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t apn_netw[30] = {"safaricom"}; 
-uint8_t apn_user[10] = {"saf"}; 
-uint8_t apn_pass[10] = {"data"};
+uint8_t apn_netw[30] = {"safaricom"}; // safaricom
+uint8_t apn_user[10] = {"saf"}; // saf
+uint8_t apn_pass[10] = {"data"}; // data
 GSMModuleState gsmModuleState;
 int sent_failed_count                  = 0; 
 uint8_t tcp_connection_failed_count    = 0;
@@ -113,7 +113,8 @@ int main(void)
   /* USER CODE BEGIN 2 */
   UART1FIFOInit();
   UART2FIFOInit();
-  serialPrint("Starting up... \r\n");
+  serialPrint("\nStarting up\r\n");
+  // initializeSIMModule();
   uint8_t data_length = 0;
   uint8_t data_bucket[100];
   /* USER CODE END 2 */
@@ -125,28 +126,33 @@ int main(void)
     /* USER CODE END WHILE */
     if (gsmModuleState == Off)
     {
-      serialPrint("SIM State is Off. Attempting to Initialize \r\n");
+      serialPrint("\nSIM State is Off.Initializing\r\n");
       if (initializeSIMModule())
       {
         gsmModuleState = On;
-        serialPrint("SIM Module initilized successfully \r\n");
+        serialPrint("\nSIM Module initilized\r\n");
       }
     }
     if (gsmModuleState == On)
     {
-      serialPrint("SIM module is on \r\n");
+      serialPrint("\nSIM module is on\r\n");
       sim_module_on_counter++;
       if (sim_module_on_counter > 300)
       {
         // Should we reset the SIM Module after 300 cycles?
-        serialPrint("Reset ? \r\n");
+        serialPrint("\nReset ?\r\n");
+        //TODO: Hack Find a way to cycle 
+        sim_module_on_counter = 0;
+        gsmModuleState = Off;
+        sent_failed_count = 0;
+        tcp_connection_failed_count = 0;
       }
       if (checkSIMNetworkState())
       {
         if (setupTCP())
         {
           gsmModuleState = Registered;
-          serialPrint("Network registration successfull \r\n");
+          serialPrint("\nNetwork registered\r\n");
         }
       }      
     }
@@ -155,14 +161,14 @@ int main(void)
       gsmModuleState              = On;
       sent_failed_count           = 0;
       tcp_connection_failed_count = 0;
-      serialPrint("GPRS Connection failed \r\n");
+      serialPrint("\nGPRS Connection failed\r\n");
     }
     if (tcp_connection_failed_count > 20)
     {
       gsmModuleState              = On;
       tcp_connection_failed_count = 0;
       sent_failed_count           = 0;
-      serialPrint("TCP Connection failed \r\n");
+      serialPrint("\nTCP Connection failed\r\n");
     }
     if (gsmModuleState == Registered)
     {
@@ -170,26 +176,26 @@ int main(void)
       getTCPStatus(300);
       if (tcpConnectionObject.state == CONNECTED)
       {
-        serialPrint("Connected to TCP Endpoint. Nothing to do. \r\n");
+        serialPrint("\nConnected to TCP Endpoint.\r\n");
       }else if((tcpConnectionObject.state == CLOSED) || (tcpConnectionObject.state == INITIAL))
       {
         data_length = snprintf((char *)data_bucket, 64, "AT+CIPSTART=0,\"TCP\",\"%s\",\"%i\"\r",test_endpoint, test_port);
         if (sendATCommand(data_bucket, data_length, "CONNECT OK", 300))
         {
-          serialPrint("Connection to endpoint done successfully \r\n");
+          serialPrint("\nConnected to endpoint\r\n");
         }else 
         {
-          serialPrint("Unable to establish connection to endpoint \r\n");
+          serialPrint("\nTCP Connection failed\r\n");
           sent_failed_count++;
         }
       }
     }
     if (tcpConnectionObject.state == CONNECTED)
     {
-      serialPrint("Still connected...Nothing to do \r\n");
+      serialPrint("\nStill connected...Nothing to do \r\n");
     }else
     {
-      serialPrint("Disconnected ...\r\n");
+      serialPrint("\nDisconnected\r\n");
     }
     /* USER CODE BEGIN 3 */
   }
@@ -244,6 +250,20 @@ int serialPrint(const char *string_format, ...)
   {
     return 0;
   }
+}
+
+int __io_putchar(uint8_t ch)
+{
+  if (ch)
+  {
+    UART1PutChar(ch);
+    return ch;
+  }
+  else
+  {
+    return 0;
+  }
+  
 }
 /* USER CODE END 4 */
 

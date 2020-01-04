@@ -16,7 +16,7 @@
 
 #define MAX_READ_DATA 512
 
-enum gsmState { Idle, MessageReceived, SMSReceived };
+enum  { Idle, MessageReceived, SMSReceived };
 
 char gsm_data_buffer[MAX_READ_DATA] = { 0 };
 volatile uint16_t read_data_buffer  = 0;
@@ -27,7 +27,7 @@ tcpObject tcpConnectionObject;
 tcpObject secondaryConnectionObject;
 TCP_IP_STATE tcpIpConnectionState;
 
-uint8_t phoneNumber[14];
+uint8_t phoneNumber[14] = "";
 uint8_t smsMessage[170];
 
 void gsmSplitString(uint8_t *charArray, char delimiter, int length, uint8_t *position)
@@ -166,14 +166,9 @@ uint8_t gsmKeepAlive()
 
 uint8_t checkSIMNetworkState()
 {
-    if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"),"+CREG: 0,1", 20)))
+    if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"),"+CREG: 0,1", 20)) || (sendATCommand("AT+CREG?",sizeof("AT+CREG?"), "+CREG: 0,5", 20)))
     {
-        serialPrint("\nRegistered to home network\r\n");
-        return 1;
-    }
-    if ((sendATCommand("AT+CREG?",sizeof("AT+CREG?"), "+CREG: 0,5", 20)))
-    {
-        serialPrint("\nRegistered but roaming\r\n");
+        serialPrint("\nRegistered to network\r\n");
         return 1;
     }
     return 0;

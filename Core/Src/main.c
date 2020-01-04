@@ -115,7 +115,7 @@ int main(void)
   UART2FIFOInit();
   serialPrint("\nStarting up\r\n");
   // initializeSIMModule();
-  uint8_t data_length = 0;
+  uint8_t data_length;
   uint8_t data_bucket[100];
   /* USER CODE END 2 */
 
@@ -193,6 +193,7 @@ int main(void)
     if (tcpConnectionObject.state == CONNECTED)
     {
       serialPrint("\nStill connected...Nothing to do \r\n");
+      HAL_Delay(5000);
     }else
     {
       serialPrint("\nDisconnected\r\n");

@@ -32,16 +32,12 @@ uint8_t smsMessage[170];
 
 void gsmSplitString(uint8_t *charArray, char delimiter, int length, uint8_t *position)
 {
-    int counter,pos = 0;
-    for(;counter < length ;)
-    {
-        if(*charArray == delimiter)
-        {
-            position[pos++] = counter;
-        }
-        counter++;
-        charArray++;
-    }
+	int counter,pos;
+	pos = 0;
+	for(counter=0;counter<length;counter++){
+		if (*charArray == delimiter) position[pos++] = counter;
+		charArray++;
+	}
 }
 
 void gsmSplitStringWithDelims(uint8_t *charArray, char delimiter_1, char delimiter_2, int length, uint8_t *position)
@@ -267,38 +263,38 @@ uint8_t setupTCP()
     {
         if (sendATCommand("AT+CIPRXGET=1", sizeof("AT+CIPRXGET=1"), "OK\r\n", 20))
         {
-            serialPrint("\nManual data fetch enabled\r\n");
+            serialPrint("\r\nManual data fetch enabled\r\n");
         }
         if(sendATCommand("AT+CGATT=1", sizeof("AT+CGATT=1"), "OK\r\n", 3000))
         {
-            serialPrint("\nAttached to network\r\n");
+            serialPrint("\r\nAttached to network\r\n");
             if (sendATCommand("AT+CIPMUX=1", sizeof("AT+CIPMUX=1"), "OK\r\n", 300))
             {
-                serialPrint("\nMulti-IP Connection started \r\n");
+                serialPrint("\r\nMulti-IP Connection started \r\n");
             }
             if (sendATCommand("AT+CIPSHUT", sizeof("AT+CIPSHUT"), "SHUT OK", 300))
             {
-                serialPrint("\nPDP Context decativated\r\n");
+                serialPrint("\r\nPDP Context decativated\r\n");
                 // See -> https://www.tutorialspoint.com/gprs/gprs_pdp_context.htm
             }
             length = snprintf(data_bucket, 64, "AT+CSTT=\"%s\",\"%s\",\"%s\"\r", apn_netw, apn_user, apn_pass);
             if (sendATCommand(data_bucket, length, "OK\r\n", 300))
             {
-                serialPrint("\nAPN OK\r\n");
+                serialPrint("\r\nAPN OK\r\n");
             }
             if (sendATCommand("AT+CIICR", sizeof("AT+CIICR"), "OK\r\n", 7000))
             {
-                serialPrint("\nWireless connection successful\r\n");
+                serialPrint("\r\nWireless connection successful\r\n");
                 if (sendATCommand("AT+CIFSR", sizeof("AT+CIFSR"), "ERROR", 3000))
                 {
-                    serialPrint("\nUnable to get local IP \r\n");
+                    serialPrint("\r\nUnable to get local IP \r\n");
                     return 0;
                 } else {
-                    serialPrint("\nLocal IP issued\r\n");
+                    serialPrint("\r\nLocal IP issued\r\n");
                     return 1;
                 }
             } else {
-                serialPrint("\nWireless connection failed\r\n");
+                serialPrint("\r\nWireless connection failed\r\n");
             }
         }
     }

@@ -1,4 +1,4 @@
-# Africa's Talking v1 R1 Dev Kit SIM 800C Sample for STM32CubeIDE
+# Africa's Talking v1 R2 Dev Kit SIM 800C Sample for STM32CubeIDE
 
 ## TLDR; 
 

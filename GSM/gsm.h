@@ -64,7 +64,7 @@ uint8_t initializeSIMModule();
 void resetSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration);
 
 /**
- * @brief Switch GSM module
+ * @brief Switch ON GSM module
  * 
  * @param pin_peripheral GPIOA|GPIOB|GPIOC
  * @param gsm_pin GSM Pin to be toglled
@@ -202,8 +202,7 @@ void gsmSplitStringWithDelims(uint8_t *charArray, char delimiter_1, char delimit
  * @brief Copy strings 
  * 
  * Copies a string from the source to the destination buckets.
- * The amounnt of characters to be copied are limited by the 
- * maximum param
+ * The amounnt of characters to be copied are limited
  * 
  * @param src source character array
  * @param dst destination charachter array bucket

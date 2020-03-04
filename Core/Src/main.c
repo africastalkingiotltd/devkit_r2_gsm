@@ -51,9 +51,9 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
-uint8_t apn_netw[30] = {"safaricom"}; // safaricom
-uint8_t apn_user[10] = {"saf"}; // saf
-uint8_t apn_pass[10] = {"data"}; // data
+uint8_t apn_netw[30] = {"iot.safaricom.com"};
+uint8_t apn_user[10] = {"none"}; 
+uint8_t apn_pass[10] = {"none"}; 
 GSMModuleState gsmModuleState;
 int sent_failed_count                  = 0; 
 uint8_t tcp_connection_failed_count    = 0;
@@ -114,7 +114,7 @@ int main(void)
   UART1FIFOInit();
   UART2FIFOInit();
   serialPrint("\nStarting up\r\n");
-  // initializeSIMModule();
+  startSIMModule(GSM_POWER_PORT, GSM_POWER_PIN, 3000);
   uint8_t data_length;
   uint8_t data_bucket[100];
   /* USER CODE END 2 */

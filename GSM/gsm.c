@@ -239,7 +239,7 @@ uint8_t getATCommandReply(char *response, int timeout)
 
 void resetSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration)
 {
-    // Maybe Unused
+
     HAL_GPIO_WritePin(pin_peripheral, gsm_pin, GPIO_PIN_RESET);
     HAL_Delay(duration);
     HAL_GPIO_WritePin(pin_peripheral,gsm_pin,GPIO_PIN_SET);
@@ -248,7 +248,7 @@ void resetSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration
 
 void startSIMModule(GPIO_TypeDef *pin_peripheral, uint16_t gsm_pin, int duration)
 {
-    // Maybe Unused
+
     HAL_GPIO_WritePin(pin_peripheral, gsm_pin, GPIO_PIN_SET);
     HAL_Delay(duration);
     HAL_GPIO_WritePin(pin_peripheral,gsm_pin,GPIO_PIN_RESET);

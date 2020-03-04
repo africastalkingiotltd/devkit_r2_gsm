@@ -72,6 +72,8 @@ int serialPrint(const char *string_format, ...);
 /* Private defines -----------------------------------------------------------*/
 #define LED_Pin GPIO_PIN_13
 #define LED_GPIO_Port GPIOC
+#define POWER_KEY_Pin GPIO_PIN_15
+#define POWER_KEY_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 #define DEVEL 1
 extern uint32_t sim_disconnected;
@@ -89,6 +91,9 @@ extern uint8_t apn_user[10]; // something like saf or empty
 extern uint8_t apn_pass[10]; // something like data or empty
 
 int __io_putchar(uint8_t ch);
+
+#define GSM_POWER_PORT GPIOB
+#define GSM_POWER_PIN  GPIO_PIN_15
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

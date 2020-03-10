@@ -69,7 +69,7 @@ void UART1PutChar(uint8_t data);
  * @brief IRQ for handling serial printing
  * 
  */
-void debugUART1IRQHandler(void);
+void UART1IRQHandler(void);
 
 /**
  * @brief Transmit data of given size to the serial

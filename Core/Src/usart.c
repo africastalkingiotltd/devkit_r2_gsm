@@ -188,7 +188,7 @@ void UART1PutChar(uint8_t d)
 
 }
 
-void debugUART1IRQHandler(void)
+void UART1IRQHandler(void)
 {
 	uint32_t sr = USART1->SR;
 	uint8_t  d;

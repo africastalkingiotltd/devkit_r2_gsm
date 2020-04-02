@@ -140,8 +140,8 @@ int main(void)
       if (sim_module_on_counter > 300)
       {
         // Should we reset the SIM Module after 300 cycles?
-        serialPrint("\nReset ?\r\n");
-        //TODO: Hack Find a way to cycle 
+        serialPrint("\nReseting...\r\n"); 
+        resetSIMModule(GSM_POWER_PORT, GSM_POWER_PIN, 3000);
         sim_module_on_counter = 0;
         gsmModuleState = Off;
         sent_failed_count = 0;

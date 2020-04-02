@@ -99,9 +99,8 @@ uint8_t initializeSIMModule()
         if (counter > 20)
         {
             serialPrint("\nUnable to initialize GSM \r\n");
-            serialPrint("\nRestart device \r\n");
-            // TODO: Document this behavior
-            //startSIMModule(GPIOC, GPIO_PIN, 3000);
+            serialPrint("\nStarting device \r\n");
+            startSIMModule(GSM_POWER_PORT, GSM_POWER_PIN, 3000);
             return 0;
         }   
     }
